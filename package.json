@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@upstash/ratelimit": "^2.1.0",
+    "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.38.4",
     "gray-matter": "^4.0.3",
     "lenis": "^1.1.18",
