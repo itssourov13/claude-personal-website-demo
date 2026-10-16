@@ -27,7 +27,7 @@
     "check-content": "node scripts/check-content.mjs"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.9.1",
+    "@hookform/resolvers": "^5.9.1",
     "@upstash/ratelimit": "^2.1.0",
     "@upstash/redis": "^1.38.4",
     "gray-matter": "^4.0.3",
