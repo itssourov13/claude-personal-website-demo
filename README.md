@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
 [![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com)
-[![License: Proprietary](https://img.shields.io/badge/license-proprietary-red)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Premium personal website — portfolio, writing, and consulting conversion
 engine. Built as a static-first Next.js application with a server-side contact
@@ -44,8 +44,10 @@ pipeline.
   (Person/CreativeWork/Article/BreadcrumbList), and dynamic Open Graph images.
 - **Performance & a11y built in** — self-hosted variable fonts, AVIF/WebP
   output, WCAG 2.2 AA-minded markup, skip link, reduced-motion support.
-- **CI from day one** — lint, strict typecheck, unit tests, e2e (Playwright),
-  and Lighthouse budgets wired to GitHub Actions + Dependabot.
+- **CI quality gates** — lint, strict typecheck, unit tests, production build,
+  and Playwright end-to-end tests across Chromium and WebKit. Failure diagnostics
+  are retained as GitHub Actions artifacts. Lighthouse budgets are configured for
+  manual runs with `pnpm lhci`; Lighthouse is not currently a blocking CI job.
 
 ## Tech stack
 
@@ -90,21 +92,23 @@ pnpm start          # serve the build on http://localhost:3000
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in what you need:
+Copy `.env.example` to `.env.local` and fill in the server-side settings you use:
 
 ```bash
 cp .env.example .env.local
 ```
 
-| Variable                       | Required                | Scope       | Purpose                                                              |
-| ------------------------------ | ----------------------- | ----------- | -------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`         | ✅                      | public      | Canonical site URL                                                   |
-| `NEXT_PUBLIC_SITE_NAME`        | ✅                      | public      | Site/brand name                                                      |
-| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | optional                | public      | Analytics domain (reserved)                                          |
-| `RESEND_API_KEY`               | for email               | server-only | Resend API key for the contact form                                  |
-| `UPSTASH_REDIS_REST_URL`       | for durable rate limits | server-only | Upstash Redis REST URL                                               |
-| `UPSTASH_REDIS_REST_TOKEN`     | for durable rate limits | server-only | Upstash Redis REST token                                             |
-| `CONTACT_TO_EMAIL`             | optional                | server-only | Recipient for contact submissions (falls back to `siteConfig.email`) |
+Site identity, canonical domain, and public metadata are read from
+`src/lib/site.config.ts`. The previously listed `NEXT_PUBLIC_*` values were
+not consumed by the application, so they are intentionally not presented as
+working configuration options.
+
+| Variable                   | Required                | Scope       | Purpose                                                              |
+| -------------------------- | ----------------------- | ----------- | -------------------------------------------------------------------- |
+| `RESEND_API_KEY`           | for email               | server-only | Resend API key for the contact form                                  |
+| `UPSTASH_REDIS_REST_URL`   | for durable rate limits | server-only | Upstash Redis REST URL                                               |
+| `UPSTASH_REDIS_REST_TOKEN` | for durable rate limits | server-only | Upstash Redis REST token                                             |
+| `CONTACT_TO_EMAIL`         | optional                | server-only | Recipient for contact submissions (falls back to `siteConfig.email`) |
 
 > Secrets are only ever read server-side (`server-only` guard in
 > `src/lib/contact.ts`). Never commit real values — `.env*.local` is
@@ -117,6 +121,7 @@ cp .env.example .env.local
 | `pnpm dev`                          | Start the dev server with hot reload                    |
 | `pnpm build`                        | Production build (`next build`)                         |
 | `pnpm start`                        | Serve the production build                              |
+| `pnpm build:e2e` / `pnpm start:e2e` | Build and serve using test-only HTTP CSP for Playwright |
 | `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config, no `any` policy)                   |
 | `pnpm typecheck`                    | TypeScript strict, no emit                              |
 | `pnpm format` / `pnpm format:check` | Prettier                                                |
@@ -178,18 +183,23 @@ and scripts are stripped even though the author is trusted.
 
 ## Testing & quality gates
 
-Every push on `main` (and every PR) runs in CI:
+Every push on `main` (and every PR) runs these CI checks:
 
-1. `pnpm lint` — ESLint 9 flat config, `no-explicit-any` is an error
-2. `pnpm typecheck` — TypeScript strict (`noUncheckedIndexedAccess`, …)
+1. `pnpm lint` — ESLint flat config, `no-explicit-any` is an error
+2. `pnpm typecheck` — strict TypeScript checks
 3. `pnpm test` — Vitest unit suites
-4. `pnpm build` — production build (all pages SSG)
-5. `pnpm e2e` — Playwright critical paths (Chromium + WebKit)
+4. `pnpm build` — production build
+5. `pnpm e2e` — Playwright critical paths in Chromium and WebKit
 
-Local one-liner for the first four: `pnpm check`.
+On E2E runs, the HTML report, traces, screenshots, and browser diagnostics are
+uploaded as a seven-day GitHub Actions artifact, including when tests fail. This
+helps distinguish a genuine interaction bug from browser/runtime or failed-asset
+problems without hiding WebKit failures or weakening assertions.
 
-Lighthouse budgets (`lighthouserc.json`): performance ≥ 0.95, accessibility
-≥ 0.98, SEO ≥ 0.98, best practices ≥ 0.95.
+Run `pnpm check` for lint, typecheck, and unit tests; run `pnpm build`
+separately. Lighthouse budgets in `lighthouserc.json` are currently manual via
+`pnpm lhci`, not part of the blocking CI workflow: performance ≥ 0.95,
+accessibility ≥ 0.98, SEO ≥ 0.98, and best practices ≥ 0.95.
 
 ## Deployment
 
@@ -200,11 +210,12 @@ install, `pnpm build`, primary region `iad1`). Deploy is push-to-main; no
 server configuration needed.
 
 1. Import the repo on Vercel.
-2. Add the environment variables from
+2. Add the required server-side values from
    [Environment variables](#environment-variables) in the project settings
-   (production + preview).
-3. Create the Upstash Redis database and Resend API key, then fill the server
-   values.
+   (production + preview). Set site identity and domain in
+   `src/lib/site.config.ts` before deploying.
+3. Create the Upstash Redis database and Resend API key, then configure the
+   server values.
 4. Point your custom domain at the deployment and enable HTTPS.
 
 ### Any Node host
@@ -244,10 +255,8 @@ pnpm start        # serves the standalone-capable build on PORT (default 3000)
 
 ## License
 
-Proprietary — all rights reserved. This repository is private source for the
-owner's personal site; no license is granted for reuse, copying, or
-redistribution. (Add a `LICENSE` file if you intend to open-source parts of
-it.)
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for
+the complete license text.
 
 ---
 

@@ -8,7 +8,7 @@ import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
 import Textarea from "@/components/ui/Textarea";
-import { contactSchema, type ContactInput } from "@/lib/schema";
+import { contactFormSchema, type ContactFormInput } from "@/lib/schema";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -24,11 +24,11 @@ export default function ContactForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ContactInput>({
-    resolver: zodResolver(contactSchema),
+  } = useForm<ContactFormInput>({
+    resolver: zodResolver(contactFormSchema),
   });
 
-  async function onSubmit(values: ContactInput) {
+  async function onSubmit(values: ContactFormInput) {
     setState("submitting");
     setServerError(null);
 
