@@ -1,6 +1,29 @@
 import { describe, expect, it } from "vitest";
 
-import { contactSchema, workFrontmatterSchema } from "@/lib/schema";
+import {
+  contactFormSchema,
+  contactSchema,
+  workFrontmatterSchema,
+} from "@/lib/schema";
+
+describe("contactFormSchema", () => {
+  const formFields = {
+    name: "Jamie Rivera",
+    email: "jamie@example.com",
+    message: "I'd like to talk about a project for our team, please.",
+  };
+
+  it("accepts valid browser form fields without server metadata", () => {
+    expect(contactFormSchema.safeParse(formFields).success).toBe(true);
+  });
+
+  it("rejects invalid browser form fields", () => {
+    expect(
+      contactFormSchema.safeParse({ ...formFields, email: "not-an-email" })
+        .success,
+    ).toBe(false);
+  });
+});
 
 describe("contactSchema", () => {
   const base = {
@@ -10,8 +33,13 @@ describe("contactSchema", () => {
     renderedAt: Date.now(),
   };
 
-  it("accepts a valid submission", () => {
+  it("accepts a valid submission including server metadata", () => {
     expect(contactSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("requires server-side time-trap metadata", () => {
+    const { renderedAt: _renderedAt, ...withoutTimestamp } = base;
+    expect(contactSchema.safeParse(withoutTimestamp).success).toBe(false);
   });
 
   it("rejects a short message", () => {

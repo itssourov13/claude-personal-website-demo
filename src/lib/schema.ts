@@ -46,7 +46,7 @@ export type Note = NoteFrontmatter & {
   readingTimeMinutes: number;
 };
 
-export const contactSchema = z.object({
+export const contactFormSchema = z.object({
   name: z.string().min(2, "Please enter your name.").max(100),
   email: z.string().email("Please enter a valid email."),
   budget: z.string().optional(),
@@ -55,9 +55,15 @@ export const contactSchema = z.object({
     .min(20, "Give me a bit more detail (20 characters minimum).")
     .max(4000),
   // Honeypot: must stay empty. Bots that fill every field trip this.
+  company: z.string().max(0, "").optional(),
+});
+
+// The API normalizes the optional honeypot and requires the server-side
+// timestamp so the time-trap cannot be bypassed by omitting it.
+export const contactSchema = contactFormSchema.extend({
   company: z.string().max(0, "").optional().default(""),
-  // Time-trap: form must be on-page at least a couple seconds before submit.
   renderedAt: z.number(),
 });
 
+export type ContactFormInput = z.infer<typeof contactFormSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;

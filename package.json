@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:e2e": "node scripts/next-e2e.mjs build",
     "start": "next start",
+    "start:e2e": "node scripts/next-e2e.mjs start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",

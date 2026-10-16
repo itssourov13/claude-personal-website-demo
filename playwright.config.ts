@@ -20,7 +20,7 @@ export default defineConfig({
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
   webServer: {
-    command: "pnpm build && pnpm start",
+    command: "pnpm build:e2e && pnpm start:e2e",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

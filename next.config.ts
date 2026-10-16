@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
+const isPlaywrightTest = process.env.PLAYWRIGHT_TEST === "1";
 
 const scriptSrc = isProd
   ? "script-src 'self' 'unsafe-inline'"
@@ -18,7 +19,9 @@ const scriptSrc = isProd
  *   Resend is called server-side. If Plausible analytics is ever added, extend
  *   `connect-src`/`script-src` with its origin.
  * - `font-src 'self' data:` — next/font self-hosts Google Fonts at build time.
- * - `upgrade-insecure-requests` is production-only so local http dev keeps working.
+ * - `upgrade-insecure-requests` and HSTS are production-only, and are omitted
+ *   from the dedicated Playwright build because its local test server uses HTTP.
+ *   Normal production builds keep both protections enabled.
  */
 function buildCsp(): string {
   const policies = [
@@ -35,7 +38,7 @@ function buildCsp(): string {
     "frame-ancestors 'none'",
   ];
 
-  if (isProd) {
+  if (isProd && !isPlaywrightTest) {
     policies.push("upgrade-insecure-requests");
   }
 
@@ -54,7 +57,7 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   // HSTS is only meaningful over HTTPS; applied in production only so local
   // http://localhost dev is never affected.
-  ...(isProd
+  ...(isProd && !isPlaywrightTest
     ? [
         {
           key: "Strict-Transport-Security",

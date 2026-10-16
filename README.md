@@ -121,6 +121,7 @@ working configuration options.
 | `pnpm dev`                          | Start the dev server with hot reload                    |
 | `pnpm build`                        | Production build (`next build`)                         |
 | `pnpm start`                        | Serve the production build                              |
+| `pnpm build:e2e` / `pnpm start:e2e` | Build and serve using test-only HTTP CSP for Playwright |
 | `pnpm lint` / `pnpm lint:fix`       | ESLint (flat config, no `any` policy)                   |
 | `pnpm typecheck`                    | TypeScript strict, no emit                              |
 | `pnpm format` / `pnpm format:check` | Prettier                                                |
