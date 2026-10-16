@@ -13,10 +13,10 @@ importers:
         version: 3.10.0(react-hook-form@7.88.0(react@19.3.0))
       '@upstash/ratelimit':
         specifier: ^2.1.0
-        version: 2.1.0(@upstash/redis@1.38.4)
+        version: 2.1.0(@upstash/redis@1.39.0)
       '@upstash/redis':
-        specifier: ^1.38.4
-        version: 1.38.4
+        specifier: ^1.39.0
+        version: 1.39.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -1180,8 +1180,8 @@ packages:
     peerDependencies:
       '@upstash/redis': ^1.38.2
 
-  '@upstash/redis@1.38.4':
-    resolution: {integrity: sha512-ZX69mKReun/yieyHYLoBg0eSiF6hjCQjd8zUKkJ5eCHehDV6P8S8oZOHxGSfkH1spfOhGZk0EGerBrfUsXow8g==}
+  '@upstash/redis@1.39.0':
+    resolution: {integrity: sha512-VwkpYTdxSfjSulQS5h16NHtg/1UEheBfvez2AeGKinAujOoGXhXCcohQRzsQ/d2g/XzbjzTVGhG8Ds8uOI0Mxg==}
 
   '@vitest/expect@2.1.9':
     resolution: {integrity: sha512-UJCIkTBenHeKT1TTlKMJWy1laZewsRIzYighyYiJKZreqtdxSos/S1t+ktRMQWu2CKqaarrkeszJx1cgC5tGZw==}
@@ -5073,14 +5073,14 @@ snapshots:
 
   '@upstash/core-analytics@0.0.10':
     dependencies:
-      '@upstash/redis': 1.38.4
+      '@upstash/redis': 1.39.0
 
-  '@upstash/ratelimit@2.1.0(@upstash/redis@1.38.4)':
+  '@upstash/ratelimit@2.1.0(@upstash/redis@1.39.0)':
     dependencies:
       '@upstash/core-analytics': 0.0.10
-      '@upstash/redis': 1.38.4
+      '@upstash/redis': 1.39.0
 
-  '@upstash/redis@1.38.4':
+  '@upstash/redis@1.39.0':
     dependencies:
       uncrypto: 0.1.3
 
