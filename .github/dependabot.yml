@@ -5,6 +5,16 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      dev-dependencies:
+      routine-dev-dependencies:
         dependency-type: "development"
+        # Keep compatibility-sensitive tools in separate PRs instead of
+        # mixing unrelated major upgrades into one hard-to-debug change.
+        exclude-patterns:
+          - "eslint"
+          - "eslint-config-next"
+          - "typescript"
+          - "typescript-eslint"
+          - "vitest"
+          - "jsdom"
+          - "@playwright/test"
     open-pull-requests-limit: 10
